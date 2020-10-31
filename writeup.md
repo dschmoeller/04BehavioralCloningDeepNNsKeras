@@ -22,6 +22,7 @@ The following files are submitted in the Github repository:
 - **drive.py** for driving the car in autonomous mode
 - **model.h5** containing a trained convolution neural network 
 - **writeup.md** summarizing the results
+- **finalRun.mp4** shows the behavior of the AV on the first test track
 
 #### 2. **Is the code functional?**
 
@@ -81,11 +82,11 @@ The idea was to use a high capacity model in order to prevent underfitting. That
 
 #### 2. **Has an attempt been made to reduce overfitting of the model?**
 
-The data was splitted up into training and validation set by a ratio of 80/20. Both the training and validation errors have been decreasing during the entire training process. That´s why no dropout layers have been added to the model archtecture. In order to reduce overvitting data augmentation has been applied by flipping the camera images. Another method to reduce overvitting was cropping the images in order to get rid of of the background noise. In general, increasing the training set is also a reasonable approach to mitigate overitting. This has been achieved by incorporating not only the cetner image, but also using the left and right ones.  
+The data was splited up into training and validation set by a ratio of 80/20. Both the training and validation errors have been decreasing during the entire training process. That´s why no dropout layers have been added to the model architecture. In order to reduce overfitting data augmentation has been applied by flipping the camera images. Another method to reduce overfitting was cropping the images in order to get rid of the background noise. In general, increasing the training set is also a reasonable approach to mitigate overfitting. This has been achieved by incorporating not only the center image, but also using the left and right ones.  
 
 #### 3. **Have the model parameters been tuned appropriately?**
 
-The model was trained utilizing an adam optimizer, so the learning rate was not tuned manually.   
+The model was trained utilizing an adam optimizer, so the learning rate was not tuned manually. The batch size was chosen to be 32. Training was done for 10 epochs. Mean squared error was used as loss function.   
 
 #### 4. **Is the training data chosen appropriately?**
 
@@ -101,9 +102,9 @@ The model architecure with its layers is described above. A similiar architecutr
 
 #### 2. Is the creation of the training dataset and training process documented?**
 
-The Udacity provided training data has been used as initial set to apply data augmentation, like described above. The example image below shows a raw input image from the center camera, i.e. no proprocessing has been applied. One raw data images has a dimension of 160x320x3. After applying cropping, it´s reduced to 80x320x3, which is the ultimate input size for the first convolutional layer. 
+The Udacity provided training data has been used as initial set to apply data augmentation, like described above. The example image below shows a raw input image from the center camera, i.e. no preprocessing has been applied. One raw data image has a dimension of 160x320x3. After applying cropping, it´s reduced to 80x320x3, which is the ultimate input size for the first convolutional layer. 
 
-[]: 
+[]: https://github.com/dschmoeller/04BehavioralCloningDeepNNsKeras/blob/master/examples/rawImageExample.jpg
 
 A data generator is used to provide batches with a size of 32. The training is done for 10 epochs. Mean squared error is utilized as loss function. The training data is randomized. After 10 epochs of training, the validation error went down to 0.086. A simulation of the corresponding model shows promising results.     
 
@@ -113,7 +114,9 @@ A data generator is used to provide batches with a size of 32. The training is d
 
 #### 1. **Is the car able to navigate correctly on test data?**
 
+Below is a link to the autonomous test drive simulation on the first track. The behavior of the AV looks promising and holds all requirements.  
 
+[]: https://github.com/dschmoeller/04BehavioralCloningDeepNNsKeras/blob/master/finalRun.mp4
 
 
 
