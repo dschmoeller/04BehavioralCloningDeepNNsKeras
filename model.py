@@ -12,9 +12,8 @@ import sklearn
 from sklearn.model_selection import train_test_split
 
 
-
-### D A T A   G E N E R A T O R  
-# Load the data from the driving log file
+### D A T A   G E N E R A T I O N   
+### 1.) Load the data from the driving log file
 # The csv file is structured like this: 
 # center - left - right - steering - throttle - brake - speed
 logFileLines = []
@@ -23,11 +22,9 @@ with open ("./data/driving_log.csv") as log:
     next(reader)
     for line in reader: 
         logFileLines.append(line)   
-
-# Split the data into training and validation set
+### 2.) Split the data into training and validation set
 trainingData, validationData = train_test_split(logFileLines, test_size=0.2)        
-
-# Define a generator which provides data batches more (memory) efficiently than just loading and storing the entire data set
+### 3.) Define a generator which provides data batches more (memory) efficiently than just loading and storing the entire data set
 def dataGenerator(data, batchSize=32): 
     numDataSamples = len(data)
     while True:
@@ -82,9 +79,8 @@ def dataGenerator(data, batchSize=32):
             y_train = np.array(augmentedSteerings)
             yield sklearn.utils.shuffle(X_train, y_train) 
 
-
             
-### B U I L D   T H E   M O D E L 
+### B U I L D   T H E   M O D E L   A R C H I T E C T U R E  
 model = Sequential()
 # L a y e r   0   (P R E P R O C E S S I N G) 
 # Lambda layer as preprocessing unit (normalization and mean centering)
@@ -92,30 +88,30 @@ model = Sequential()
 model.add(Lambda(lambda x: (x / 255.0) - 0.5, input_shape=(160,320,3)))
 model.add(Cropping2D(cropping=((60,20), (0,0))))
 # L a y e r   1
-# Convolution and MaxPool --> Input: 160x320x3 --> Layer 1 --> Output: 80x160x24 
+# Convolution and MaxPool --> Input: 80x320x3 --> Layer 1 --> Output: 40x160x24 
 model.add(Conv2D(kernel_size=(5,5), filters=24, padding='same', activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2), padding='valid'))
 # L a y e r   2
-# Convolution and MaxPool --> Input: 80x160x24 --> Layer 2 --> Output: 40x80x36 
+# Convolution and MaxPool --> Input: 40x160x24 --> Layer 2 --> Output: 20x80x36 
 model.add(Conv2D(kernel_size=(5,5), filters=36, padding='same', activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2), padding='valid'))
 # L a y e r   3
-# Convolution and MaxPool --> Input: 40x80x36 --> Layer 3 --> Output: 20x40x48
+# Convolution and MaxPool --> Input: 20x80x36 --> Layer 3 --> Output: 10x40x48
 model.add(Conv2D(kernel_size=(5,5), filters=48, padding='same', activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2), padding='valid'))
 # L a y e r   4
-# Convolution and MaxPool --> Input: 20x40x48 --> Layer 4 --> Output: 10x20x64
+# Convolution and MaxPool --> Input: 10x40x48 --> Layer 4 --> Output: 5x20x64
 model.add(Conv2D(kernel_size=(3,3), filters=64, padding='same', activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2), padding='valid'))
 # L a y e r   5
-# Convolution and MaxPool --> Input: 10x20x64 --> Layer 5 --> Output: 5x10x64
+# Convolution and MaxPool --> Input: 5x20x64 --> Layer 5 --> Output: 2x10x64
 model.add(Conv2D(kernel_size=(3,3), filters=64, padding='same', activation='relu'))
 model.add(MaxPooling2D(pool_size=(2,2), padding='valid'))
 # L a y e r   6
-# Flatten Layer --> Input: 5x10x64 --> Layer 4 Output: 3200
+# Flatten Layer --> Input: 2x10x64 --> Layer 4 Output: 1280
 model.add(Flatten())
 # L a y e r   7
-# Dense (Fully Connected) and Relu --> Input 3200 --> Layer 7 --> Output: 320
+# Dense (Fully Connected) and Relu --> Input 1280 --> Layer 7 --> Output: 320
 model.add(Dense(320))
 model.add(Activation('relu'))
 # L a y e r   8
@@ -131,19 +127,17 @@ model.add(Activation('relu'))
 model.add(Dense(1))
 
 
-
 ### T R A I N   T H E   M O D E L
 # Define data generator for training and validation batches
 batchSize = 32
 trainingDataGenerator = dataGenerator(trainingData, batchSize)
 validationDataGenerator = dataGenerator(validationData, batchSize)
-
 # Use mean squared error function as loss and the adam optimizer (stochastic gradient descent)
 model.compile(loss="mse", optimizer="adam")
 # Training
 behavioralCloningModel = model.fit_generator(trainingDataGenerator, steps_per_epoch=np.ceil(len(trainingData)/batchSize), \
-                                             validation_data=validationDataGenerator, validation_steps=np.ceil(len(validationData)/batchSize), \
-                                             epochs=10, verbose=1)
+    validation_data=validationDataGenerator, validation_steps=np.ceil(len(validationData)/batchSize), \
+    epochs=10, verbose=1)
 # Save the model
 model.save("model.h5")
 
